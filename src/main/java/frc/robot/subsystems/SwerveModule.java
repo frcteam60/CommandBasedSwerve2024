@@ -19,15 +19,34 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 
 import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.RelativeEncoder;
+import frc.robot.Constants.OperatorConstants;
 
 public class SwerveModule extends SubsystemBase {
-  
+  // Stuff here
 
   /** Creates a new ExampleSubsystem. */
-  public SwerveModule(int driveMotorCANID, int twistMotorCANID) {
+  public SwerveModule(int driveMotorCANID, int twistMotorCANID, boolean driveInvert, boolean twistInvert) {
+    //Drive Motor
     final CANSparkMax driveMotor = new CANSparkMax(driveMotorCANID, MotorType.kBrushless);
-    //CANSparkBase drives = new C
+    driveMotor.setInverted(driveInvert);
+    driveMotor.setSmartCurrentLimit(OperatorConstants.AMPLimitDrive);
+    //driveMotor.setClosedLoopRampRate(twistMotorCANID);
+    //driveMotor.setIdleMode(null);
+   
+    // Steering Motor
+    final CANSparkMax steeringMotor = new CANSparkMax(twistMotorCANID, MotorType.kBrushless);
+    steeringMotor.setInverted(twistInvert);
+    steeringMotor.setSmartCurrentLimit(OperatorConstants.AMPLimitSteering);
+   
 
+    // relative encoders on the drive/swerve motors
+    final RelativeEncoder relativeSteeringEncoder = steeringMotor.getEncoder();
+    relativeSteeringEncoder.setPositionConversionFactor();
+    
+    final RelativeEncoder relativeDriveEncoder = driveMotor.getEncoder();
+
+    final SparkPIDController twistMotorPIDCOntroller = steeringMotor.getPIDController();
+    final SparkPIDController driveMotorPIDCOntroller = driveMotor.getPIDController();
   }
 
   /**

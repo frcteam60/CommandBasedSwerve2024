@@ -8,12 +8,18 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.OperatorConstants;
 
+
+
 public class Swerve extends SubsystemBase {
   /** Creates a new ExampleSubsystem. */
-  private final SwerveModule frontRightModule = new SwerveModule(OperatorConstants.frontRightDriveCANID, OperatorConstants.frontRightSteeringCANID);
-  private final SwerveModule frontLefttModule = new SwerveModule(OperatorConstants.frontLeftDriveCANID, OperatorConstants.frontLeftSteeringCANID);
-  private final SwerveModule backRightModule = new SwerveModule(OperatorConstants.backRightDriveCANID, OperatorConstants.backRightSteeringCANID);
-  private final SwerveModule backLeftModule = new SwerveModule(OperatorConstants.backLeftDriveCANID, OperatorConstants.backLeftSteeringCANID);
+  private final SwerveModule frontRightModule = new SwerveModule(
+    OperatorConstants.frontRightDriveCANID, OperatorConstants.frontRightSteeringCANID, OperatorConstants.frontRightDriveInvert, OperatorConstants.frontRightSteeringInvert);
+  private final SwerveModule frontLefttModule = new SwerveModule(
+    OperatorConstants.frontLeftDriveCANID, OperatorConstants.frontLeftSteeringCANID, OperatorConstants.frontLeftDriveInvert, OperatorConstants.frontLeftSteeringInvert);
+  private final SwerveModule backRightModule = new SwerveModule(
+    OperatorConstants.backRightDriveCANID, OperatorConstants.backRightSteeringCANID, OperatorConstants.backRightDriveInvert, OperatorConstants.backRightSteeringInvert);
+  private final SwerveModule backLeftModule = new SwerveModule(
+    OperatorConstants.backLeftDriveCANID, OperatorConstants.backLeftSteeringCANID, OperatorConstants.backLeftDriveInvert, OperatorConstants.backLeftSteeringInvert);
 
 
   public Swerve() {}
