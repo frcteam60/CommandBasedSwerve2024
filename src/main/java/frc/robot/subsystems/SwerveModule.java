@@ -9,6 +9,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
+import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import com.revrobotics.CANSparkBase;
 import com.revrobotics.SparkPIDController;
 import com.revrobotics.CANSparkLowLevel.MotorType;
@@ -23,30 +24,48 @@ import frc.robot.Constants.OperatorConstants;
 
 public class SwerveModule extends SubsystemBase {
   // Stuff here
+  private CANSparkMax driveMotor;
+  private CANSparkMax twistMotor;
+  private RelativeEncoder relativeTwistEncoder;
+  private DutyCycleEncoder absoluteTwistEncoder;
+  private RelativeEncoder relativeDriveEncoder;
+  private SparkPIDController twistMotorPIDCOntroller;
+  private SparkPIDController driveMotorPIDCOntroller;
 
   /** Creates a new ExampleSubsystem. */
-  public SwerveModule(int driveMotorCANID, int twistMotorCANID, boolean driveInvert, boolean twistInvert) {
+  public SwerveModule(int driveMotorCANID, int twistMotorCANID, int absoluteTwistEncoderPort, double absoluteEncoderOffset, boolean driveInvert, boolean twistInvert) {
     //Drive Motor
-    final CANSparkMax driveMotor = new CANSparkMax(driveMotorCANID, MotorType.kBrushless);
+    this.driveMotor = new CANSparkMax(driveMotorCANID, MotorType.kBrushless);
     driveMotor.setInverted(driveInvert);
     driveMotor.setSmartCurrentLimit(OperatorConstants.AMPLimitDrive);
     //driveMotor.setClosedLoopRampRate(twistMotorCANID);
     //driveMotor.setIdleMode(null);
    
-    // Steering Motor
-    final CANSparkMax steeringMotor = new CANSparkMax(twistMotorCANID, MotorType.kBrushless);
-    steeringMotor.setInverted(twistInvert);
-    steeringMotor.setSmartCurrentLimit(OperatorConstants.AMPLimitSteering);
-   
+    // Twist Motor
+    this.twistMotor = new CANSparkMax(twistMotorCANID, MotorType.kBrushless);
+    twistMotor.setInverted(twistInvert);
+    twistMotor.setSmartCurrentLimit(OperatorConstants.AMPLimitSteering);
 
-    // relative encoders on the drive/swerve motors
-    final RelativeEncoder relativeSteeringEncoder = steeringMotor.getEncoder();
-    relativeSteeringEncoder.setPositionConversionFactor();
+    // relative twist encoder
+    this.relativeTwistEncoder = twistMotor.getEncoder();
+    relativeTwistEncoder.setPositionConversionFactor(OperatorConstants.SteeringMotorFactor);
     
-    final RelativeEncoder relativeDriveEncoder = driveMotor.getEncoder();
+    // absolute twist encoder
+    this.absoluteTwistEncoder = new DutyCycleEncoder(absoluteTwistEncoderPort);
+    //absoluteTwistEncoder.setDistancePerRotation(absoluteTwistEncoderPort);
+    //absoluteTwistEncoder.setPositionOffset(absoluteTwistEncoderPort);
 
-    final SparkPIDController twistMotorPIDCOntroller = steeringMotor.getPIDController();
-    final SparkPIDController driveMotorPIDCOntroller = driveMotor.getPIDController();
+    // Sets twist encoder to correct angle based on absolute zero
+    zeroEncoder(absoluteEncoderOffset);
+
+    // relative drive encoder
+    this.relativeDriveEncoder = driveMotor.getEncoder();
+    relativeDriveEncoder.setPositionConversionFactor(OperatorConstants.driveMotorFactor);
+    relativeDriveEncoder.setVelocityConversionFactor(OperatorConstants.driveMotorVelocityFactor);
+
+    this.twistMotorPIDCOntroller = twistMotor.getPIDController();
+    this.driveMotorPIDCOntroller = driveMotor.getPIDController();
+    configPID();
   }
 
   /**
@@ -72,6 +91,48 @@ public class SwerveModule extends SubsystemBase {
     // Query some boolean state, such as a digital sensor.
     return false;
   }
+
+  private void configAngleMotor(){
+    
+  }
+
+  //TODO call this at beginning of match too
+  private void zeroEncoder(double offset){
+    relativeTwistEncoder.setPosition(absoluteTwistEncoder.getAbsolutePosition()* 360 - offset);  
+  }   
+
+  private void configPID(){
+   /*
+    driveMotorPIDCOntroller.setP(OperatorConstants.driveMotorP);
+    driveMotorPIDCOntroller.setI(OperatorConstants.driveMotorI);
+    driveMotorPIDCOntroller.setD(OperatorConstants.driveMotorD);
+    driveMotorPIDCOntroller.setFF(OperatorConstants.driveMotorFF);*/
+ 
+    twistMotorPIDCOntroller.setP(OperatorConstants.twistMotorP);
+    twistMotorPIDCOntroller.setI(OperatorConstants.twistMotorI);
+    twistMotorPIDCOntroller.setD(OperatorConstants.twistMotorD);
+    twistMotorPIDCOntroller.setFF(OperatorConstants.twistMotorFF);
+    twistMotorPIDCOntroller.setPositionPIDWrappingEnabled(true);
+    twistMotorPIDCOntroller.setPositionPIDWrappingMaxInput(180);
+    twistMotorPIDCOntroller.setPositionPIDWrappingMinInput(-180);
+  }
+
+  // Subtracts two angles
+  private double angleSubtractor (double firstAngle, double secondAngle) {
+    // 
+     double result = ((firstAngle - secondAngle) + 360180)%360 - 180;
+     return result;
+    
+  }
+
+  double returnModuleSpeed(){
+    // TODO convert module speed to meters per second
+    double moduleSpeed = relativeDriveEncoder.getVelocity();
+    moduleSpeed = 0;
+    return moduleSpeed;
+}
+
+  
 
   @Override
   public void periodic() {
