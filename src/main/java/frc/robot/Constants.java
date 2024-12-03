@@ -49,11 +49,17 @@ public final class Constants {
     public static final double driveMotorVelocityFactor = 102/13;
     public static final double SteeringMotorFactor = (7.0/96) * 360;
 
+    // Absolute Encoder Ports
+    public static final int frontLeftAbsoluteEncoderPort = 3;
+    public static final int frontRightAbsoluteEncoderPort = 2;
+    public static final int backLeftAbsoluteEncoderPort = 0;
+    public static final int backRightAbsoluteEncoderPort = 1;
+
     // AbsolutEncoderOffset
-    public static final double frontLeftAbsolutEncoderOffset = -0.493 * 360;
-    public static final double frontRightAbsolutEncoderOffset = -0.394 * 360;
-    public static final double backLeftAbsolutEncoderOffset = 0.275 * 360;
-    public static final double backRightAbsolutEncoderOffset = -0.257 * 360;
+    public static final double frontLeftAbsoluteEncoderOffset = -0.493 * 360;
+    public static final double frontRightAbsoluteEncoderOffset = -0.394 * 360;
+    public static final double backLeftAbsoluteEncoderOffset = 0.275 * 360;
+    public static final double backRightAbsoluteEncoderOffset = -0.257 * 360;
 
     // PID constants
     public static final double twistMotorP = 0.005;

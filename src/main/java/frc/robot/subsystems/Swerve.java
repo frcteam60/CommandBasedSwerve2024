@@ -4,6 +4,11 @@
 
 package frc.robot.subsystems;
 
+import com.kauailabs.navx.frc.AHRS;
+
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.OperatorConstants;
@@ -11,15 +16,69 @@ import frc.robot.Constants.OperatorConstants;
 
 
 public class Swerve extends SubsystemBase {
+  // dimensions between wheels center-to-center
+  public static final double length = 22.25;
+  public static final double width = 22.25;
+
+  // Gyro
+  double gyro_radians;
+  double gyro_degrees;
+  double temp;
+  double forward;
+  double strafe;
+  double turning;
+  double diagonal;
+  // Desired Position
+  double desiredX = 0;
+  double desiredY = 0;
+  double desiredYaw = 0;
+  double XError;
+  double YError;
+  double YawError;
+  //
+  double newX;
+  double newY;
+  double newRobotAngle;
+  Rotation2d gyroRotation2d;
+  Pose2d robotPose2d;
+  // ***
+
+  // Subtracts two angles
+  public double angleSubtractor(double firstAngle, double secondAngle) {
+    double result = (((firstAngle - secondAngle) + 360180) % 360) - 180;
+    return result;
+  }
+  
+  // ***
+  AHRS gyro = new AHRS(SPI.Port.kMXP);
+  double yawOffset = 0;
+
+  // ***
+  double getGyroRobotYaw() {
+    return angleSubtractor(yawOffset, gyro.getYaw());
+  }
+
+  void zeroGyro() {
+    yawOffset = 0;
+    gyro.zeroYaw();
+  }
+
+  void setYawOffset(double newYawOffset) {
+    yawOffset = newYawOffset;
+  }
+
   /** Creates a new ExampleSubsystem. */
   private final SwerveModule frontRightModule = new SwerveModule(
-    OperatorConstants.frontRightDriveCANID, OperatorConstants.frontRightSteeringCANID, OperatorConstants.frontRightDriveInvert, OperatorConstants.frontRightSteeringInvert);
+    OperatorConstants.frontRightDriveCANID, OperatorConstants.frontRightSteeringCANID, OperatorConstants.frontRightAbsoluteEncoderPort, OperatorConstants.frontRightAbsoluteEncoderOffset, OperatorConstants.frontRightDriveInvert, OperatorConstants.frontRightSteeringInvert);
+  
   private final SwerveModule frontLefttModule = new SwerveModule(
-    OperatorConstants.frontLeftDriveCANID, OperatorConstants.frontLeftSteeringCANID, OperatorConstants.frontLeftDriveInvert, OperatorConstants.frontLeftSteeringInvert);
+    OperatorConstants.frontLeftDriveCANID, OperatorConstants.frontLeftSteeringCANID, OperatorConstants.frontLeftAbsoluteEncoderPort, OperatorConstants.frontLeftAbsoluteEncoderOffset, OperatorConstants.frontLeftDriveInvert, OperatorConstants.frontLeftSteeringInvert);
+  
   private final SwerveModule backRightModule = new SwerveModule(
-    OperatorConstants.backRightDriveCANID, OperatorConstants.backRightSteeringCANID, OperatorConstants.backRightDriveInvert, OperatorConstants.backRightSteeringInvert);
+    OperatorConstants.backRightDriveCANID, OperatorConstants.backRightSteeringCANID, OperatorConstants.backRightAbsoluteEncoderPort, OperatorConstants.backRightAbsoluteEncoderOffset, OperatorConstants.backRightDriveInvert, OperatorConstants.backRightSteeringInvert);
+  
   private final SwerveModule backLeftModule = new SwerveModule(
-    OperatorConstants.backLeftDriveCANID, OperatorConstants.backLeftSteeringCANID, OperatorConstants.backLeftDriveInvert, OperatorConstants.backLeftSteeringInvert);
+    OperatorConstants.backLeftDriveCANID, OperatorConstants.backLeftSteeringCANID, OperatorConstants.backLeftAbsoluteEncoderPort, OperatorConstants.backLeftAbsoluteEncoderOffset, OperatorConstants.backLeftDriveInvert, OperatorConstants.backLeftSteeringInvert);
 
 
   public Swerve() {}
