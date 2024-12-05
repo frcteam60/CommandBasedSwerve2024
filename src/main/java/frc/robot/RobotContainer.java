@@ -9,6 +9,8 @@ import frc.robot.commands.Autos;
 import frc.robot.commands.ExampleCommand;
 import frc.robot.subsystems.ExampleSubsystem;
 import frc.robot.subsystems.Drive;
+import frc.robot.subsystems.Swerve;
+import frc.robot.subsystems.SwerveModule;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
@@ -24,10 +26,12 @@ public class RobotContainer {
   // The robot's subsystems and commands are defined here...
   private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
   private final Drive driveTrain = new Drive();
+  private final Swerve swerveDrive = new Swerve();
+  
 
-/*   // Replace with CommandPS4Controller or CommandJoystick if needed
-  private final CommandXboxController m_driverController =
-      new CommandXboxController(OperatorConstants.kDriverControllerPort); */
+  // xbox controller
+  private final CommandXboxController xboxController =
+      new CommandXboxController(OperatorConstants.kDriverControllerPort);
   // Extra joystick
   private final CommandJoystick joystick = new CommandJoystick(OperatorConstants.joystickControllerPort);
 
@@ -55,10 +59,13 @@ public class RobotContainer {
     // cancelling on release.
     //m_driverController.b().whileTrue(m_exampleSubsystem.exampleMethodCommand());
 
-    driveTrain.setDefaultCommand(
+    /*driveTrain.setDefaultCommand(
       driveTrain.simpleDriveCommand(
         () -> joystick.getRawAxis(1)*0.5, () -> joystick.getRawAxis(2)* 0.5)
-    );
+    );*/
+
+    swerveDrive.setDefaultCommand(
+      swerveDrive.driveTeleop(xboxController.getLeftY(), xboxController.getLeftX(), xboxController.getRightX()));
   }
 
   /**

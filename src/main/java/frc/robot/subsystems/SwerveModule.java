@@ -37,8 +37,8 @@ public class SwerveModule extends SubsystemBase {
   public SwerveModule(int driveMotorCANID, int twistMotorCANID, int absoluteTwistEncoderPort, double absoluteEncoderOffset, boolean driveInvert, boolean twistInvert) {
     //Drive Motor
     this.driveMotor = new CANSparkMax(driveMotorCANID, MotorType.kBrushless);
-    driveMotor.setInverted(driveInvert);
-    driveMotor.setSmartCurrentLimit(OperatorConstants.AMPLimitDrive);
+    this.driveMotor.setInverted(driveInvert);
+    this.driveMotor.setSmartCurrentLimit(OperatorConstants.AMPLimitDrive);
     //driveMotor.setClosedLoopRampRate(twistMotorCANID);
     //driveMotor.setIdleMode(null);
    
@@ -68,6 +68,42 @@ public class SwerveModule extends SubsystemBase {
     this.driveMotorPIDCOntroller = driveMotor.getPIDController();
     configPID();
   }
+
+  // Subtracts two angles
+  public double angleSubtractor (double firstAngle, double secondAngle) {
+    // 
+    double result = ((firstAngle - secondAngle) + 360180)%360 - 180;
+    return result;
+  }
+
+  public void drive (double speed, double angle){
+    //angleEncoder.getVelocity()
+    double currentAngle = relativeTwistEncoder.getPosition();
+    /*** if robot turns the wrong direction, then this may need to be inversed */
+    //speed = speed * 0.5
+    double setPointAngle = angleSubtractor(currentAngle, angle);
+    double setPointAngleFlipped = angleSubtractor(currentAngle + 180, angle);
+    //twistMotorPIDCOntroller.setReference(angle, CANSparkMax.ControlType.kPosition);
+    //speedMotor.set(speed);
+
+    if (Math.abs(setPointAngle) < Math.abs(setPointAngleFlipped)){
+      if (Math.abs(speed) < 0.1){
+          twistMotorPIDCOntroller.setReference(currentAngle, CANSparkMax.ControlType.kPosition);
+          driveMotor.set(speed);
+      } else {
+          twistMotorPIDCOntroller.setReference(angleSubtractor(currentAngle, setPointAngle), CANSparkMax.ControlType.kPosition);
+          driveMotor.set(speed);
+      }
+    } else {
+      if (Math.abs(speed) < 0.1){
+          twistMotorPIDCOntroller.setReference(currentAngle, CANSparkMax.ControlType.kPosition);
+          driveMotor.set(-1 * speed);
+      } else {
+          twistMotorPIDCOntroller.setReference(angleSubtractor(currentAngle, setPointAngleFlipped), CANSparkMax.ControlType.kPosition);
+          driveMotor.set(-1 * speed);
+      }
+    } 
+ }
 
   /**
    * Example command factory method.
@@ -118,20 +154,12 @@ public class SwerveModule extends SubsystemBase {
     twistMotorPIDCOntroller.setPositionPIDWrappingMinInput(-180);
   }
 
-  // Subtracts two angles
-  private double angleSubtractor (double firstAngle, double secondAngle) {
-    // 
-     double result = ((firstAngle - secondAngle) + 360180)%360 - 180;
-     return result;
-    
-  }
-
   double returnModuleSpeed(){
     // TODO convert module speed to meters per second
     double moduleSpeed = relativeDriveEncoder.getVelocity();
     moduleSpeed = 0;
     return moduleSpeed;
-}
+  }
 
   
 

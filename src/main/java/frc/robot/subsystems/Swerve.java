@@ -71,7 +71,7 @@ public class Swerve extends SubsystemBase {
   private final SwerveModule frontRightModule = new SwerveModule(
     OperatorConstants.frontRightDriveCANID, OperatorConstants.frontRightSteeringCANID, OperatorConstants.frontRightAbsoluteEncoderPort, OperatorConstants.frontRightAbsoluteEncoderOffset, OperatorConstants.frontRightDriveInvert, OperatorConstants.frontRightSteeringInvert);
   
-  private final SwerveModule frontLefttModule = new SwerveModule(
+  private final SwerveModule frontLeftModule = new SwerveModule(
     OperatorConstants.frontLeftDriveCANID, OperatorConstants.frontLeftSteeringCANID, OperatorConstants.frontLeftAbsoluteEncoderPort, OperatorConstants.frontLeftAbsoluteEncoderOffset, OperatorConstants.frontLeftDriveInvert, OperatorConstants.frontLeftSteeringInvert);
   
   private final SwerveModule backRightModule = new SwerveModule(
@@ -81,7 +81,142 @@ public class Swerve extends SubsystemBase {
     OperatorConstants.backLeftDriveCANID, OperatorConstants.backLeftSteeringCANID, OperatorConstants.backLeftAbsoluteEncoderPort, OperatorConstants.backLeftAbsoluteEncoderOffset, OperatorConstants.backLeftDriveInvert, OperatorConstants.backLeftSteeringInvert);
 
 
-  public Swerve() {}
+  public Swerve() {
+
+  }
+
+  // This function converts inches to meters
+  public double inchesToMeters(double inches) {
+    return inches * 0.0254;
+  }
+
+  // ***
+  double degreesToRadians(double degreeAngle) {
+    return degreeAngle / 360 * 2 * Math.PI;
+  }
+
+  // ***
+  double radiansToDegrees(double radianAngle) {
+    return radianAngle * 360 / 2 / Math.PI;
+  }
+
+  // Coerces a value to range
+  public double coerceToRange(double number, double min, double max) {
+    double coercedValue;
+    if (number >= max) {
+      coercedValue = max;
+    } else if (number <= min) {
+      coercedValue = min;
+    } else {
+      coercedValue = number;
+    }
+    return coercedValue;
+  }
+
+  // drive method
+    // ***
+    public void drive(double forwardSpeed, double strafeSpeed, double turningSpeed) {
+      double tempHighestSpeed;
+      diagonal = Math.sqrt((length * length) + (width * width));
+
+      // Convert to chassis speeds
+      // ChassisSpeeds chassisSpeeds =
+      // kinematics.toChassisSpeeds(frontLeft.getState(), frontRight.getState(),
+      // backLeft.getState(), backRight.getState());
+
+      // ***
+      // Adjusts values to field oriented drive
+      gyro_degrees = getGyroRobotYaw();
+      gyro_radians = degreesToRadians(getGyroRobotYaw());
+      temp = forwardSpeed * Math.cos(gyro_radians) + strafeSpeed * Math.sin(gyro_radians);
+      strafeSpeed = strafeSpeed * Math.cos(gyro_radians) - forwardSpeed * Math.sin(gyro_radians);
+      forwardSpeed = temp;
+
+      /*
+       * temp = forward * Math.cos(gyro_radians) + strafe * Math.sin(gyro_radians);
+       * strafe = (forward * -1) * Math.sin(gyro_radians) + strafe *
+       * Math.cos(gyro_radians);
+       * forward = temp;
+       */
+
+      // ***
+      double a = strafeSpeed - turningSpeed * (length / diagonal); // back horizontal
+      double b = strafeSpeed + turningSpeed * (length / diagonal); // front horizontal
+      double c = forwardSpeed + turningSpeed * (width / diagonal); // right vertical
+      double d = forwardSpeed - turningSpeed * (width / diagonal); // left vertical
+
+      // Speed Values
+      // ***
+      double backRightSpeed = Math.hypot(a, c);
+      double backLeftSpeed = Math.hypot(a, d);
+      double frontRightSpeed = Math.hypot(b, c);
+      double frontLeftSpeed = Math.hypot(b, d);
+      // Angle Values
+      double backRightAngle = (Math.atan2(a, c) / Math.PI * 180);
+      double backLeftAngle = (Math.atan2(a, d) / Math.PI * 180);
+      double frontRightAngle = (Math.atan2(b, c) / Math.PI * 180);
+      double frontLeftAngle = (Math.atan2(b, d) / Math.PI * 180);
+
+      // ***
+      // If a speed is more than 100% power scale the speeds down
+      /* tempHighestSpeed = Math.max(Math.max(Math.abs(frontLeftSpeed), Math.abs(frontRightSpeed)),
+              Math.max(Math.abs(backLeftSpeed), Math.abs(backRightSpeed)));
+      if (tempHighestSpeed > 1) {
+          frontLeftSpeed = frontLeftSpeed / tempHighestSpeed;
+          frontRightSpeed = frontRightSpeed / tempHighestSpeed;
+          backLeftSpeed = backLeftSpeed / tempHighestSpeed;
+          backRightSpeed = backRightSpeed / tempHighestSpeed;
+      } */
+      //
+      backRightModule.drive(backRightSpeed, backRightAngle);
+      backLeftModule.drive(backLeftSpeed, backLeftAngle);
+      frontRightModule.drive(frontRightSpeed, frontRightAngle);
+      frontLeftModule.drive(frontLeftSpeed, frontLeftAngle);
+
+  }
+
+  public Command driveTeleop(double joystickForward, double joystickSideways, double joystickTurning) {
+    
+    return runOnce(
+      () -> {
+    double turningDT;
+    double forwardDT;
+    double sidewaysDT;
+    if (joystickTurning >= -0.03 && joystickTurning <= 0.03) {
+          YawError = angleSubtractor(desiredYaw, getGyroRobotYaw());
+          if (YawError >= -3 && YawError <= 3) {
+              YawError = 0;
+          }
+          turningDT = coerceToRange((YawError) * 0.010, -1, 1);
+          // 0.020
+      } else {
+          desiredYaw = getGyroRobotYaw() + (joystickTurning * 10);
+          YawError = angleSubtractor(desiredYaw, getGyroRobotYaw());
+          if (YawError >= -2 && YawError <= 2) {
+              YawError = 0;
+          }
+          turningDT = coerceToRange((YawError) * 0.07, -1, 1);
+      }
+
+      if (joystickForward >= -0.01 && joystickForward <= 0.01) {
+          forwardDT = 0;
+      } else {
+          forwardDT = joystickForward;
+      }
+
+      if (joystickSideways >= -0.01 && joystickSideways <= 0.01) {
+          sidewaysDT = 0;
+      } else {
+          sidewaysDT = joystickSideways;
+      }
+
+      drive(joystickForward, joystickSideways, joystickTurning);});
+
+  }
+
+
+  
+
 
   /**
    * Example command factory method.
