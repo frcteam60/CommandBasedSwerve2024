@@ -16,7 +16,6 @@ public final class Constants {
   public static class OperatorConstants {
     // Joysticks
     public static final int kDriverControllerPort = 0;
-    public static final int joystickControllerPort = 1;
 
     // drive current limits
     public static final int AMPLimitSteering = 20;
@@ -34,14 +33,14 @@ public final class Constants {
     public static final int backRightDriveCANID = 3;
 
     // motor inverts
-    public static final boolean frontLeftSteeringInvert = false;
-    public static final boolean frontRightSteeringInvert = false;
-    public static final boolean backLeftSteeringInvert = false;
-    public static final boolean backRightSteeringInvert = false;
+    public static final boolean frontLeftSteeringInvert = true;
+    public static final boolean frontRightSteeringInvert = true;
+    public static final boolean backLeftSteeringInvert = true;
+    public static final boolean backRightSteeringInvert = true;
 
-    public static final boolean frontLeftDriveInvert = false;
+    public static final boolean frontLeftDriveInvert = true;
     public static final boolean frontRightDriveInvert = false;
-    public static final boolean backLeftDriveInvert = false;
+    public static final boolean backLeftDriveInvert = true;
     public static final boolean backRightDriveInvert = false;
 
     //position conversion swerve moduels

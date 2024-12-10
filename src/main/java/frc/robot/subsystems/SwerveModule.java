@@ -73,6 +73,9 @@ public class SwerveModule extends SubsystemBase {
   public double angleSubtractor (double firstAngle, double secondAngle) {
     // 
     double result = ((firstAngle - secondAngle) + 360180)%360 - 180;
+    if(Math.abs(result) > 180){
+      System.out.println(result);
+    }
     return result;
   }
 
@@ -134,7 +137,7 @@ public class SwerveModule extends SubsystemBase {
   }
 
   //TODO call this at beginning of match too
-  private void zeroEncoder(double offset){
+  void zeroEncoder(double offset){
     relativeTwistEncoder.setPosition(absoluteTwistEncoder.getAbsolutePosition()* 360 - offset);  
   }   
 

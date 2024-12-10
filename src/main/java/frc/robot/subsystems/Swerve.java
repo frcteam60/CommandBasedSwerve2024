@@ -4,6 +4,8 @@
 
 package frc.robot.subsystems;
 
+import java.util.function.DoubleSupplier;
+
 import com.kauailabs.navx.frc.AHRS;
 
 import edu.wpi.first.math.geometry.Pose2d;
@@ -175,14 +177,13 @@ public class Swerve extends SubsystemBase {
 
   }
 
-  public Command driveTeleop(double joystickForward, double joystickSideways, double joystickTurning) {
-    
-    return runOnce(
+  public Command driveTeleop(DoubleSupplier joystickForward, DoubleSupplier joystickSideways, DoubleSupplier joystickTurning) {
+    return run(
       () -> {
-    double turningDT;
-    double forwardDT;
-    double sidewaysDT;
-    if (joystickTurning >= -0.03 && joystickTurning <= 0.03) {
+    double turningDT = joystickTurning.getAsDouble();
+    double forwardDT = joystickForward.getAsDouble();
+    double sidewaysDT = joystickSideways.getAsDouble();
+    if (turningDT >= -0.03 && turningDT <= 0.03) {
           YawError = angleSubtractor(desiredYaw, getGyroRobotYaw());
           if (YawError >= -3 && YawError <= 3) {
               YawError = 0;
@@ -190,7 +191,7 @@ public class Swerve extends SubsystemBase {
           turningDT = coerceToRange((YawError) * 0.010, -1, 1);
           // 0.020
       } else {
-          desiredYaw = getGyroRobotYaw() + (joystickTurning * 10);
+          desiredYaw = getGyroRobotYaw() + (turningDT * 10);
           YawError = angleSubtractor(desiredYaw, getGyroRobotYaw());
           if (YawError >= -2 && YawError <= 2) {
               YawError = 0;
@@ -198,24 +199,30 @@ public class Swerve extends SubsystemBase {
           turningDT = coerceToRange((YawError) * 0.07, -1, 1);
       }
 
-      if (joystickForward >= -0.01 && joystickForward <= 0.01) {
+      if (forwardDT >= -0.01 && forwardDT <= 0.01) {
           forwardDT = 0;
       } else {
-          forwardDT = joystickForward;
+          //forwardDT = joystickForward;
       }
 
-      if (joystickSideways >= -0.01 && joystickSideways <= 0.01) {
+      if (sidewaysDT >= -0.01 && sidewaysDT <= 0.01) {
           sidewaysDT = 0;
       } else {
-          sidewaysDT = joystickSideways;
+          //sidewaysDT = joystickSideways;
       }
-
-      drive(joystickForward, joystickSideways, joystickTurning);});
+      
+      drive(forwardDT, sidewaysDT, turningDT);});
 
   }
 
 
-  
+  public void relativeEncoderOffsets(){
+    frontLeftModule.zeroEncoder(OperatorConstants.frontLeftAbsoluteEncoderOffset);
+    frontRightModule.zeroEncoder(OperatorConstants.frontRightAbsoluteEncoderOffset);
+    backLeftModule.zeroEncoder(OperatorConstants.backLeftAbsoluteEncoderOffset);
+    backRightModule.zeroEncoder(OperatorConstants.backRightAbsoluteEncoderOffset);
+
+  }
 
 
   /**
