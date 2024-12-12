@@ -71,6 +71,12 @@ public class RobotContainer {
     swerveDrive.relativeEncoderOffsets();
   }
 
+  public void zeroGyro(){
+    swerveDrive.zeroGyro();
+  }
+  public void setGyro(){
+    swerveDrive.setGyro();
+  }
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
    *

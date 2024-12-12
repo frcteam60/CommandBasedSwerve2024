@@ -90,6 +90,7 @@ public class SwerveModule extends SubsystemBase {
     //speedMotor.set(speed);
 
     if (Math.abs(setPointAngle) < Math.abs(setPointAngleFlipped)){
+      //System.out.println("Set point angle is smaller");
       if (Math.abs(speed) < 0.1){
           twistMotorPIDCOntroller.setReference(currentAngle, CANSparkMax.ControlType.kPosition);
           driveMotor.set(speed);
@@ -98,6 +99,7 @@ public class SwerveModule extends SubsystemBase {
           driveMotor.set(speed);
       }
     } else {
+      //System.out.println("flipped angle is smaller or equal");
       if (Math.abs(speed) < 0.1){
           twistMotorPIDCOntroller.setReference(currentAngle, CANSparkMax.ControlType.kPosition);
           driveMotor.set(-1 * speed);

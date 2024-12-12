@@ -73,5 +73,8 @@ public final class Constants {
     public static final double driveMotorFF = 0;
     
 
+    // Sensitivity
+    public static final double sensitivity = 3;
+
   }
 }

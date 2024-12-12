@@ -60,13 +60,26 @@ public class Swerve extends SubsystemBase {
     return angleSubtractor(yawOffset, gyro.getYaw());
   }
 
-  void zeroGyro() {
+  public void zeroGyro() {
     yawOffset = 0;
     gyro.zeroYaw();
   }
 
   void setYawOffset(double newYawOffset) {
     yawOffset = newYawOffset;
+  }
+  public void setGyro(){
+    setYawOffset(gyro.getYaw());
+  }
+
+  double applySensitivity(double orignalValue, double sensitivity){
+    //absolute value of value raised to 1/sensitivity, then sign reaplied
+    double newValue = Math.abs(orignalValue);
+    newValue = Math.pow(newValue, sensitivity/1);
+    newValue = Math.copySign(newValue, orignalValue);
+    System.out.println(orignalValue + "orignal value");
+    System.out.println(newValue + "newValue");
+    return newValue;
   }
 
   /** Creates a new ExampleSubsystem. */
@@ -115,10 +128,14 @@ public class Swerve extends SubsystemBase {
     return coercedValue;
   }
 
+
   // drive method
     // ***
     public void drive(double forwardSpeed, double strafeSpeed, double turningSpeed) {
       double tempHighestSpeed;
+      forwardSpeed = forwardSpeed;
+      strafeSpeed = strafeSpeed;
+      turningSpeed = turningSpeed;
       diagonal = Math.sqrt((length * length) + (width * width));
 
       // Convert to chassis speeds
@@ -179,10 +196,10 @@ public class Swerve extends SubsystemBase {
 
   public Command driveTeleop(DoubleSupplier joystickForward, DoubleSupplier joystickSideways, DoubleSupplier joystickTurning) {
     return run(
-      () -> {
-    double turningDT = joystickTurning.getAsDouble();
+    () -> {
+    double turningDT = -joystickTurning.getAsDouble();
     double forwardDT = joystickForward.getAsDouble();
-    double sidewaysDT = joystickSideways.getAsDouble();
+    double sidewaysDT = -joystickSideways.getAsDouble();
     if (turningDT >= -0.03 && turningDT <= 0.03) {
           YawError = angleSubtractor(desiredYaw, getGyroRobotYaw());
           if (YawError >= -3 && YawError <= 3) {
@@ -211,7 +228,9 @@ public class Swerve extends SubsystemBase {
           //sidewaysDT = joystickSideways;
       }
       
-      drive(forwardDT, sidewaysDT, turningDT);});
+      //drive(forwardDT, sidewaysDT, turningDT);
+      drive(applySensitivity(forwardDT, OperatorConstants.sensitivity), applySensitivity(sidewaysDT, OperatorConstants.sensitivity), applySensitivity(turningDT, OperatorConstants.sensitivity));
+    });
 
   }
 
@@ -253,6 +272,7 @@ public class Swerve extends SubsystemBase {
   public void periodic() {
     // This method will be called once per scheduler run
   }
+
 
   @Override
   public void simulationPeriodic() {
