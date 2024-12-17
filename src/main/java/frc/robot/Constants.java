@@ -67,7 +67,7 @@ public final class Constants {
     public static final double twistMotorFF = 0;
 
     // PID constants
-    public static final double driveMotorP = 0;
+    public static final double driveMotorP = 0.00004;
     public static final double driveMotorI = 0;
     public static final double driveMotorD = 0;
     public static final double driveMotorFF = 0;

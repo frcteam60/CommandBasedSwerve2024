@@ -8,8 +8,15 @@ import java.util.function.DoubleSupplier;
 
 import com.kauailabs.navx.frc.AHRS;
 
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
+import edu.wpi.first.math.kinematics.SwerveModulePosition;
+
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -77,8 +84,8 @@ public class Swerve extends SubsystemBase {
     double newValue = Math.abs(orignalValue);
     newValue = Math.pow(newValue, sensitivity/1);
     newValue = Math.copySign(newValue, orignalValue);
-    System.out.println(orignalValue + "orignal value");
-    System.out.println(newValue + "newValue");
+    //System.out.println(orignalValue + "orignal value");
+    //System.out.println(newValue + "newValue");
     return newValue;
   }
 
@@ -133,9 +140,7 @@ public class Swerve extends SubsystemBase {
     // ***
     public void drive(double forwardSpeed, double strafeSpeed, double turningSpeed) {
       double tempHighestSpeed;
-      forwardSpeed = forwardSpeed;
-      strafeSpeed = strafeSpeed;
-      turningSpeed = turningSpeed;
+  
       diagonal = Math.sqrt((length * length) + (width * width));
 
       // Convert to chassis speeds

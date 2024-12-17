@@ -19,6 +19,9 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+
 import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.RelativeEncoder;
 import frc.robot.Constants.OperatorConstants;
@@ -66,6 +69,7 @@ public class SwerveModule extends SubsystemBase {
 
     this.twistMotorPIDCOntroller = twistMotor.getPIDController();
     this.driveMotorPIDCOntroller = driveMotor.getPIDController();
+    driveMotorPIDCOntroller.setSmartMotionAllowedClosedLoopError(absoluteEncoderOffset);
     configPID();
   }
 
@@ -79,8 +83,20 @@ public class SwerveModule extends SubsystemBase {
     return result;
   }
 
+  double speedToRPM(double speed){
+    return speed * 10000;
+  }
+
   public void drive (double speed, double angle){
+    
     //angleEncoder.getVelocity()
+    double desiredModRPM = speedToRPM(speed);
+    if(speed!= 0){
+      System.out.println(speed + "speed");
+      System.out.println(desiredModRPM + "DesiredRPM");
+      System.out.println(relativeDriveEncoder.getVelocity());
+    }
+    
     double currentAngle = relativeTwistEncoder.getPosition();
     /*** if robot turns the wrong direction, then this may need to be inversed */
     //speed = speed * 0.5
@@ -88,26 +104,30 @@ public class SwerveModule extends SubsystemBase {
     double setPointAngleFlipped = angleSubtractor(currentAngle + 180, angle);
     //twistMotorPIDCOntroller.setReference(angle, CANSparkMax.ControlType.kPosition);
     //speedMotor.set(speed);
-
+    //System.out.println(desiredModRPM + "desiredModRPM");
     if (Math.abs(setPointAngle) < Math.abs(setPointAngleFlipped)){
-      //System.out.println("Set point angle is smaller");
       if (Math.abs(speed) < 0.1){
           twistMotorPIDCOntroller.setReference(currentAngle, CANSparkMax.ControlType.kPosition);
-          driveMotor.set(speed);
+          //driveMotor.set(speed);
+          driveMotorPIDCOntroller.setReference(desiredModRPM, CANSparkBase.ControlType.kVelocity);
       } else {
           twistMotorPIDCOntroller.setReference(angleSubtractor(currentAngle, setPointAngle), CANSparkMax.ControlType.kPosition);
-          driveMotor.set(speed);
+          //driveMotor.set(speed);
+          driveMotorPIDCOntroller.setReference(desiredModRPM, CANSparkBase.ControlType.kVelocity);
       }
     } else {
       //System.out.println("flipped angle is smaller or equal");
       if (Math.abs(speed) < 0.1){
           twistMotorPIDCOntroller.setReference(currentAngle, CANSparkMax.ControlType.kPosition);
-          driveMotor.set(-1 * speed);
+          //driveMotor.set(-1 * speed);
+          driveMotorPIDCOntroller.setReference(-desiredModRPM, CANSparkBase.ControlType.kVelocity);
       } else {
           twistMotorPIDCOntroller.setReference(angleSubtractor(currentAngle, setPointAngleFlipped), CANSparkMax.ControlType.kPosition);
-          driveMotor.set(-1 * speed);
+          //driveMotor.set(-1 * speed);
+          driveMotorPIDCOntroller.setReference(-desiredModRPM, CANSparkBase.ControlType.kVelocity);
       }
     } 
+
  }
 
   /**
@@ -144,11 +164,10 @@ public class SwerveModule extends SubsystemBase {
   }   
 
   private void configPID(){
-   /*
     driveMotorPIDCOntroller.setP(OperatorConstants.driveMotorP);
     driveMotorPIDCOntroller.setI(OperatorConstants.driveMotorI);
     driveMotorPIDCOntroller.setD(OperatorConstants.driveMotorD);
-    driveMotorPIDCOntroller.setFF(OperatorConstants.driveMotorFF);*/
+    driveMotorPIDCOntroller.setFF(OperatorConstants.driveMotorFF);
  
     twistMotorPIDCOntroller.setP(OperatorConstants.twistMotorP);
     twistMotorPIDCOntroller.setI(OperatorConstants.twistMotorI);
