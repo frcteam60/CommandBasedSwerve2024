@@ -36,12 +36,16 @@ public class SwerveModule extends SubsystemBase {
   private SparkPIDController twistMotorPIDCOntroller;
   private SparkPIDController driveMotorPIDCOntroller;
 
+  private double wheelCirc = (3.58 * 0.0254) * Math.PI;
+  private double wheelCircMeters = 4.5 *0.0254;
+
   /** Creates a new ExampleSubsystem. */
   public SwerveModule(int driveMotorCANID, int twistMotorCANID, int absoluteTwistEncoderPort, double absoluteEncoderOffset, boolean driveInvert, boolean twistInvert) {
     //Drive Motor
     this.driveMotor = new CANSparkMax(driveMotorCANID, MotorType.kBrushless);
     this.driveMotor.setInverted(driveInvert);
     this.driveMotor.setSmartCurrentLimit(OperatorConstants.AMPLimitDrive);
+ 
     //driveMotor.setClosedLoopRampRate(twistMotorCANID);
     //driveMotor.setIdleMode(null);
    
@@ -69,32 +73,35 @@ public class SwerveModule extends SubsystemBase {
 
     this.twistMotorPIDCOntroller = twistMotor.getPIDController();
     this.driveMotorPIDCOntroller = driveMotor.getPIDController();
-    driveMotorPIDCOntroller.setSmartMotionAllowedClosedLoopError(absoluteEncoderOffset);
+    //driveMotorPIDCOntroller.setSmartMotionAllowedClosedLoopError(absoluteEncoderOffset);
     configPID();
+  }
+
+  // RPM to Meters per Second
+  double RPMToMetersPerSecond(double RPM){
+    return wheelCircMeters * RPM;
   }
 
   // Subtracts two angles
   public double angleSubtractor (double firstAngle, double secondAngle) {
     // 
     double result = ((firstAngle - secondAngle) + 360180)%360 - 180;
-    if(Math.abs(result) > 180){
-      System.out.println(result);
-    }
     return result;
   }
 
   double speedToRPM(double speed){
-    return speed * 10000;
+    return speed * 5000;
   }
 
   public void drive (double speed, double angle){
-    
     //angleEncoder.getVelocity()
     double desiredModRPM = speedToRPM(speed);
     if(speed!= 0){
       System.out.println(speed + "speed");
       System.out.println(desiredModRPM + "DesiredRPM");
+      //System.out.println(RPMToMetersPerSecond(desiredModRPM)+" m/sec");
       System.out.println(relativeDriveEncoder.getVelocity());
+      System.out.println("");
     }
     
     double currentAngle = relativeTwistEncoder.getPosition();
