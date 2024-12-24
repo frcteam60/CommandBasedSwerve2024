@@ -7,6 +7,9 @@ package frc.robot.subsystems;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
 import com.kauailabs.navx.frc.AHRS;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
@@ -97,10 +100,15 @@ public class SwerveModule extends SubsystemBase {
     //angleEncoder.getVelocity()
     double desiredModRPM = speedToRPM(speed);
     if(speed!= 0){
+      double velocity = relativeDriveEncoder.getVelocity();
       System.out.println(speed + "speed");
+      SmartDashboard.putNumber("speed", speed);
       System.out.println(desiredModRPM + "DesiredRPM");
+      SmartDashboard.putNumber("desiredModRPM", desiredModRPM);
       //System.out.println(RPMToMetersPerSecond(desiredModRPM)+" m/sec");
-      System.out.println(relativeDriveEncoder.getVelocity());
+      System.out.println(velocity);
+      SmartDashboard.putNumber("actual RPM", velocity);
+      SmartDashboard.putNumber("Error", desiredModRPM-velocity);
       System.out.println("");
     }
     

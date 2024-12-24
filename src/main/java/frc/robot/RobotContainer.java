@@ -8,7 +8,7 @@ import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.Autos;
 import frc.robot.commands.ExampleCommand;
 import frc.robot.subsystems.ExampleSubsystem;
-
+import frc.robot.subsystems.SingleWheel;
 import frc.robot.subsystems.Swerve;
 import frc.robot.subsystems.SwerveModule;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -28,6 +28,7 @@ public class RobotContainer {
   // The robot's subsystems and commands are defined here...
   private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
   private final Swerve swerveDrive = new Swerve();
+  private final SingleWheel motor = new SingleWheel();
   
 
   // xbox controller
@@ -63,8 +64,11 @@ public class RobotContainer {
         () -> joystick.getRawAxis(1)*0.5, () -> joystick.getRawAxis(2)* 0.5)
     );*/
     System.out.println("configurebindings");
-    swerveDrive.setDefaultCommand(
-      swerveDrive.driveTeleop(() -> -xboxController.getLeftY(), () -> xboxController.getLeftX(), () -> xboxController.getRightX()));
+    //swerveDrive.setDefaultCommand(
+      //swerveDrive.driveTeleop(() -> -xboxController.getLeftY(), () -> xboxController.getLeftX(), () -> xboxController.getRightX()));
+    motor.setDefaultCommand(
+      motor.exampleMethodCommand(() -> -xboxController.getRightTriggerAxis()));
+    
   }
 
   public void setEncoderOffsets(){
