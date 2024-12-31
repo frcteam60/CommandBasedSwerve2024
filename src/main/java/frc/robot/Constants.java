@@ -44,12 +44,12 @@ public final class Constants {
     public static final boolean backRightDriveInvert = false;
 
     //position conversion swerve moduels
-    public static final double driveMotorFactor = 1;
-    public static final double driveMotorVelocityFactor = 1;
-    public static final double SteeringMotorFactor = (7.0/96) * 360;
-    //public static final double driveMotorFactor = (102/13)/50.7;
-    //public static final double driveMotorVelocityFactor = (102/13);
+    //public static final double driveMotorFactor = 1;
+    //public static final double driveMotorVelocityFactor = 1;
     //public static final double SteeringMotorFactor = (7.0/96) * 360;
+    public static final double driveMotorFactor = (102/13)/50.7;
+    public static final double driveMotorVelocityFactor = (102/13);
+    public static final double SteeringMotorFactor = (7.0/96) * 360;
 
     // Absolute Encoder Ports
     public static final int frontLeftAbsoluteEncoderPort = 3;
@@ -71,8 +71,8 @@ public final class Constants {
 
     // PID constants
     //0.0004;
-    public static final double driveMotorP = 0.0003;
-    //public static final double driveMotorP = 0.0001;
+    //public static final double driveMotorP = 0.0003;
+    public static final double driveMotorP = 0.0001;
     public static final double driveMotorI = 0;
     public static final double driveMotorD = 0;
     //public static final double driveMotorFF = 0.00009;

@@ -43,7 +43,9 @@ public class SingleWheel extends SubsystemBase {
     singleMotorPID.setI(0);
     singleMotorPID.setD(0);
     singleMotorPID.setFF(0);
-    //encoder.setPostitionConversionFactor(1.2);
+    //encoder.setPositionConversionFactor(0.);
+    encoder.setVelocityConversionFactor(1);
+    
  
 
   }
@@ -60,7 +62,7 @@ public class SingleWheel extends SubsystemBase {
         () -> {
           SmartDashboard.putNumber("velocity", encoder.getVelocity());
           System.out.println(encoder.getVelocity() + "velocity");
-          singleMotorPID.setReference(60, CANSparkBase.ControlType.kVelocity);
+          singleMotorPID.setReference(300/0.84, CANSparkBase.ControlType.kVelocity);
         });
   }
 

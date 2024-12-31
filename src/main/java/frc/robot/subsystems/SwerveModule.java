@@ -70,9 +70,11 @@ public class SwerveModule extends SubsystemBase {
     zeroEncoder(absoluteEncoderOffset);
 
     // relative drive encoder
-    this.relativeDriveEncoder = driveMotor.getEncoder();
+    this.relativeDriveEncoder = driveMotor.getEncoder(); 
     relativeDriveEncoder.setPositionConversionFactor(OperatorConstants.driveMotorFactor);
     relativeDriveEncoder.setVelocityConversionFactor(OperatorConstants.driveMotorVelocityFactor);
+    //relativeDriveEncoder.setMeasurementPeriod(42);
+    //relativeDriveEncoder.setAverageDepth();
 
     this.twistMotorPIDCOntroller = twistMotor.getPIDController();
     this.driveMotorPIDCOntroller = driveMotor.getPIDController();
